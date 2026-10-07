@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EasyExplorer – File Manager for Android</title>
+<meta name="description" content="EasyExplorer is a fast, private file manager for Android with a desktop-style three-pane layout, powerful search, a 30-day recycle bin, password-protected ZIPs and 40 languages.">
+<meta name="theme-color" content="#0b1328">
+<meta property="og:title" content="EasyExplorer – File Manager for Android">
+<meta property="og:description" content="Browse, search and manage every file – fast, simple and private.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://drb21904.github.io/filemanager/">
+<meta property="og:image" content="https://drb21904.github.io/filemanager/images/icon.png">
+<link rel="canonical" href="https://drb21904.github.io/filemanager/">
+<link rel="icon" type="image/png" href="images/icon.png">
+<link rel="apple-touch-icon" href="images/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070d1d;
+    --bg-2: #0b1328;
+    --panel: #111b36;
+    --panel-2: #16224a;
+    --line: rgba(255, 255, 255, 0.08);
+    --text: #eef2fb;
+    --muted: #a9b6d6;
+    --dim: #7483a8;
+    --amber: #ffc94a;
+    --orange: #ff8a1f;
+    --blue: #4f8cff;
+    --green: #2fbd7e;
+    --violet: #8a63ee;
+    --red: #ff5a4e;
+    --radius: 20px;
+    --max: 1160px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: 'Sora', system-ui, sans-serif; line-height: 1.15; margin: 0; letter-spacing: -0.02em; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+  .grad { background: linear-gradient(100deg, var(--amber), var(--orange)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(7, 13, 29, 0.72);
+    backdrop-filter: saturate(160%) blur(14px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; gap: 28px; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 19px; }
+  .brand img { width: 36px; height: 36px; border-radius: 9px; }
+  .brand b { color: var(--amber); font-weight: 700; }
+  .nav-links { display: flex; gap: 26px; margin-left: auto; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-weight: 600; font-size: 15px; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { padding: 9px 18px; border-radius: 999px; background: var(--amber); color: #1b1200; text-decoration: none; font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .nav-cta:hover { filter: brightness(1.07); }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding: 84px 0 110px; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; inset: -20% -10% auto -10%; height: 900px; z-index: -1;
+    background:
+      radial-gradient(600px 420px at 75% 35%, rgba(79, 140, 255, 0.28), transparent 70%),
+      radial-gradient(520px 380px at 15% 20%, rgba(255, 201, 74, 0.14), transparent 70%),
+      radial-gradient(700px 500px at 60% 90%, rgba(138, 99, 238, 0.18), transparent 70%);
+  }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line);
+    color: var(--muted); font-size: 14px; font-weight: 600;
+  }
+  .eyebrow .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(47, 189, 126, .18); }
+  .hero h1 { font-size: clamp(40px, 6vw, 68px); font-weight: 800; margin: 22px 0 20px; }
+  .hero p.lead { font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 540px; margin: 0 0 34px; }
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+  .play-btn {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 12px 22px 12px 18px; border-radius: 14px;
+    background: #000; border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff; text-decoration: none; transition: transform .2s, border-color .2s;
+  }
+  .play-btn:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.5); }
+  .play-btn svg { width: 30px; height: 30px; flex: none; }
+  .play-btn small { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .8; line-height: 1.2; }
+  .play-btn strong { display: block; font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 600; line-height: 1.2; }
+  .ghost-btn { color: var(--text); text-decoration: none; font-weight: 700; padding: 12px 6px; border-bottom: 2px solid transparent; }
+  .ghost-btn:hover { border-color: var(--amber); }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; padding: 0; list-style: none; }
+  .chips li { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .chips li svg { width: 18px; height: 18px; color: var(--green); }
+
+  .hero-art { position: relative; height: 620px; }
+  .phone {
+    position: relative; border-radius: 38px; padding: 10px;
+    background: linear-gradient(160deg, #2a3557, #0d1426);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  }
+  .phone img { border-radius: 29px; width: 100%; height: auto; }
+  .phone::after { content: ""; position: absolute; top: 18px; left: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #05080f; }
+  .hero-art .phone { position: absolute; width: 280px; }
+  .hero-art .p1 { left: 4%; top: 40px; transform: rotate(-6deg); z-index: 2; }
+  .hero-art .p2 { right: 2%; top: 0; transform: rotate(5deg); z-index: 1; }
+  .float-card {
+    position: absolute; z-index: 3; display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 16px;
+    background: rgba(17, 27, 54, 0.88); border: 1px solid var(--line);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .4);
+    font-size: 14px; font-weight: 600;
+  }
+  .float-card small { display: block; color: var(--dim); font-weight: 500; font-size: 12px; }
+  .float-card .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; flex: none; }
+  .float-card .ic svg { width: 20px; height: 20px; color: #fff; }
+  .fc1 { left: -2%; bottom: 70px; }
+  .fc2 { right: 0; bottom: 150px; }
+
+  /* ---------- Stats ---------- */
+  .stats { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--bg-2); }
+  .stats .wrap { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat { padding: 34px 20px; text-align: center; }
+  .stat + .stat { border-left: 1px solid var(--line); }
+  .stat b { display: block; font-family: 'Sora', sans-serif; font-size: 36px; font-weight: 800; }
+  .stat span { color: var(--muted); font-size: 15px; }
+
+  /* ---------- Sections ---------- */
+  section.block { padding: 110px 0; }
+  .section-head { text-align: center; max-width: 720px; margin: 0 auto 60px; }
+  .kicker { color: var(--amber); font-weight: 700; font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
+  .section-head h2 { font-size: clamp(30px, 4vw, 46px); font-weight: 800; margin: 12px 0 16px; }
+  .section-head p { color: var(--muted); margin: 0; font-size: 18px; }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature {
+    padding: 28px; border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--panel), rgba(17, 27, 54, 0.5));
+    border: 1px solid var(--line);
+    transition: transform .25s, border-color .25s;
+  }
+  .feature:hover { transform: translateY(-4px); border-color: rgba(255, 201, 74, 0.35); }
+  .feature .ic { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 18px; }
+  .feature .ic svg { width: 24px; height: 24px; color: #fff; }
+  .feature h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+  .feature p { margin: 0; color: var(--muted); font-size: 15.5px; }
+  .bg-amber { background: linear-gradient(150deg, #ffcf5c, #f57c00); }
+  .bg-blue { background: linear-gradient(150deg, #5b9dff, #1a5fd4); }
+  .bg-green { background: linear-gradient(150deg, #5be0a3, #1c9a64); }
+  .bg-violet { background: linear-gradient(150deg, #a685f7, #5f36c2); }
+  .bg-red { background: linear-gradient(150deg, #ff8a75, #e63c30); }
+  .bg-teal { background: linear-gradient(150deg, #4fd1d9, #158a96); }
+
+  /* Showcase rows */
+  .showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
+  .showcase + .showcase { margin-top: 120px; }
+  .showcase.flip .media { order: 2; }
+  .showcase .media { display: flex; justify-content: center; }
+  .showcase .media .phone { width: 300px; }
+  .showcase h3 { font-size: clamp(26px, 3vw, 36px); font-weight: 800; margin: 12px 0 16px; }
+  .showcase p { color: var(--muted); margin: 0 0 22px; }
+  .ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .ticks li { display: flex; gap: 12px; align-items: flex-start; }
+  .ticks li::before {
+    content: ""; flex: none; width: 22px; height: 22px; margin-top: 2px; border-radius: 50%;
+    background: rgba(255, 201, 74, .14) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23ffc94a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 14px no-repeat;
+  }
+
+  code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: .9em; padding: 2px 7px; border-radius: 6px; background: rgba(255, 201, 74, .12); color: var(--amber); }
+
+  /* Landscape */
+  .wide-frame {
+    max-width: 980px; margin: 0 auto; border-radius: 30px; padding: 10px;
+    background: linear-gradient(160deg, #2a3557, #0d1426);
+    box-shadow: 0 40px 90px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .08) inset;
+  }
+  .wide-frame img { border-radius: 21px; width: 100%; }
+  .pane-labels { display: grid; grid-template-columns: 22% 42% 36%; max-width: 960px; margin: 22px auto 0; text-align: center; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .pane-labels span::before { content: ""; display: block; height: 2px; margin: 0 18px 10px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+
+  /* Gallery */
+  .gallery { display: flex; gap: 26px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 10px 24px 30px; scrollbar-width: thin; scrollbar-color: #2a3557 transparent; }
+  .gallery figure { margin: 0; flex: 0 0 240px; scroll-snap-align: center; }
+  .gallery .phone { border-radius: 32px; padding: 8px; cursor: zoom-in; transition: transform .25s; }
+  .gallery .phone img { border-radius: 25px; }
+  .gallery .phone:hover { transform: translateY(-6px); }
+  .gallery figcaption { text-align: center; margin-top: 14px; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .gallery-wrap { max-width: 1400px; margin: 0 auto; }
+
+  /* Privacy */
+  .privacy {
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: 50px; align-items: center;
+    padding: 56px; border-radius: 30px;
+    background: radial-gradient(500px 300px at 90% 10%, rgba(47, 189, 126, .16), transparent 70%), var(--panel);
+    border: 1px solid var(--line);
+  }
+  .privacy h2 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; margin: 12px 0 16px; }
+  .privacy p { color: var(--muted); margin: 0 0 14px; }
+  .privacy .note { font-size: 14px; color: var(--dim); }
+  .priv-list { display: grid; gap: 14px; }
+  .priv-item { display: flex; gap: 14px; align-items: center; padding: 16px 18px; border-radius: 16px; background: rgba(255, 255, 255, .04); border: 1px solid var(--line); }
+  .priv-item svg { width: 26px; height: 26px; flex: none; color: var(--green); }
+  .priv-item b { display: block; font-size: 16px; }
+  .priv-item span { color: var(--muted); font-size: 14px; }
+
+  /* Languages */
+  .langs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 980px; margin: 0 auto; }
+  .langs span { padding: 8px 16px; border-radius: 999px; background: rgba(255, 255, 255, .05); border: 1px solid var(--line); font-size: 15px; color: var(--muted); }
+
+  /* FAQ */
+  .faq { max-width: 820px; margin: 0 auto; display: grid; gap: 14px; }
+  details { border-radius: 16px; background: var(--panel); border: 1px solid var(--line); padding: 4px 22px; }
+  summary { cursor: pointer; list-style: none; padding: 16px 0; font-weight: 700; font-size: 17px; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--amber); font-size: 24px; line-height: 1; transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { margin: 0 0 18px; color: var(--muted); }
+
+  /* Final CTA */
+  .final {
+    text-align: center; padding: 80px 24px; border-radius: 30px;
+    background: radial-gradient(600px 300px at 50% 0%, rgba(255, 201, 74, .2), transparent 70%), linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line);
+  }
+  .final img { width: 96px; height: 96px; border-radius: 24px; margin: 0 auto 24px; box-shadow: 0 20px 40px rgba(0, 0, 0, .4); }
+  .final h2 { font-size: clamp(30px, 4vw, 46px); font-weight: 800; margin-bottom: 14px; }
+  .final p { color: var(--muted); margin: 0 auto 30px; max-width: 520px; }
+  .final .cta-row { justify-content: center; }
+
+  footer { padding: 50px 0 60px; color: var(--dim); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 18px 30px; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 34px; }
+  footer nav, footer .links { display: flex; flex-wrap: wrap; gap: 22px; position: static; background: none; border: 0; backdrop-filter: none; }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+
+  /* Lightbox */
+  .lightbox { position: fixed; inset: 0; z-index: 100; display: none; place-items: center; padding: 24px; background: rgba(3, 6, 14, .92); cursor: zoom-out; }
+  .lightbox.open { display: grid; }
+  .lightbox img { max-height: 92vh; width: auto; border-radius: 22px; box-shadow: 0 30px 80px rgba(0, 0, 0, .6); }
+
+  /* Reveal on scroll (content stays visible without JavaScript) */
+  .js .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+  .js .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .js .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .hero .wrap, .showcase, .privacy { grid-template-columns: 1fr; }
+    .hero { padding-top: 56px; }
+    .hero-copy { text-align: center; }
+    .hero p.lead { margin-left: auto; margin-right: auto; }
+    .cta-row, .chips { justify-content: center; }
+    .hero-art { height: 560px; max-width: 520px; width: 100%; margin: 0 auto; }
+    .showcase.flip .media { order: 0; }
+    .showcase { gap: 40px; }
+    .features { grid-template-columns: 1fr 1fr; }
+    .privacy { padding: 36px 24px; }
+    .nav-links { display: none; }
+    .nav-cta { margin-left: auto; }
+  }
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+    .wrap { padding: 0 16px; }
+    section.block { padding: 76px 0; }
+    .features { grid-template-columns: 1fr; }
+    .stats .wrap { grid-template-columns: 1fr 1fr; }
+    .stat:nth-child(3) { border-left: 0; }
+    .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .hero-art { height: 470px; }
+    .hero-art .phone { width: 210px; }
+    .hero-art .p1 { left: 0; }
+    .hero-art .p2 { right: 0; }
+    .fc1 { left: 0; bottom: 20px; }
+    .fc2 { right: 0; bottom: 110px; }
+    .showcase .media .phone { width: 260px; }
+    .pane-labels { font-size: 12px; }
+    .gallery { padding-left: 16px; padding-right: 16px; }
+    .gallery figure { flex-basis: 210px; }
+    .final { padding: 56px 18px; }
+    .brand span.name-long { display: none; }
+  }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="images/icon.png" alt=""><span>Easy<b>Explorer</b></span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a class="nav-cta" href="https://play.google.com/store/apps/details?id=com.deepak.easyexplorer">Get the app</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="dot"></span>File manager for Android · 40 languages</span>
+      <h1>Every file.<br><span class="grad">Easy to find.</span></h1>
+      <p class="lead">EasyExplorer brings the clarity of a desktop file browser to your phone: a folder tree, your files and a live preview, side by side. Fast to use, simple to learn and private by design.</p>
+      <div class="cta-row">
+        <a class="play-btn" href="https://play.google.com/store/apps/details?id=com.deepak.easyexplorer" aria-label="Get it on Google Play">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#00d2ff" d="M3.6 1.8 13.4 12 3.6 22.2c-.4-.2-.6-.7-.6-1.2V3c0-.5.2-1 .6-1.2z"/>
+            <path fill="#00f076" d="M16.8 8.6 13.4 12 3.6 1.8c.3-.2.8-.2 1.2 0z"/>
+            <path fill="#ff3a44" d="M16.8 15.4 4.8 22.2c-.4.2-.9.2-1.2 0L13.4 12z"/>
+            <path fill="#ffd500" d="m20.5 10.6-3.7-2L13.4 12l3.4 3.4 3.7-2.1c1-.6 1-2.1 0-2.7z"/>
+          </svg>
+          <span><small>Get it on</small><strong>Google Play</strong></span>
+        </a>
+        <a class="ghost-btn" href="#features">See what it can do →</a>
+      </div>
+      <ul class="chips">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Free</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>No account</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>No analytics</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Works offline</li>
+      </ul>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <div class="phone p2"><img src="images/tiles.jpg" alt=""></div>
+      <div class="phone p1"><img src="images/explorer.jpg" alt=""></div>
+      <div class="float-card fc1">
+        <span class="ic bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></svg></span>
+        <span>Recycle bin<small>Undo mistakes for 30 days</small></span>
+      </div>
+      <div class="float-card fc2">
+        <span class="ic bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+        <span>Password ZIP<small>AES-256 encryption</small></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="wrap">
+    <div class="stat"><b class="grad">3</b><span>panes, like a desktop</span></div>
+    <div class="stat"><b class="grad">40</b><span>languages</span></div>
+    <div class="stat"><b class="grad">30</b><span>day recycle bin</span></div>
+    <div class="stat"><b class="grad">0</b><span>accounts or trackers</span></div>
+  </div>
+</div>
+
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Features</div>
+      <h2>Everything you need. Nothing in your way.</h2>
+      <p>From a quick tidy-up to finding one document among thousands, EasyExplorer keeps it simple.</p>
+    </div>
+    <div class="features">
+      <div class="feature reveal">
+        <div class="ic bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg></div>
+        <h3>Desktop-style three panes</h3>
+        <p>Folder tree, file list and a live preview side by side. Resize the panes or hide them to suit your screen.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+        <h3>Powerful search</h3>
+        <p>Search by name with wildcards, or by type, size and date. Advanced Search even finds words inside documents, PDFs and spreadsheets.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Instant previews</h3>
+        <p>Photos, videos, PDFs, text and app files preview right next to the list. Double-tap a photo to open it full screen and swipe through the rest.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></svg></div>
+        <h3>Recycle bin and undo</h3>
+        <p>Deleted files wait 30 days before they're gone, and undo and redo cover moves, renames and more.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>ZIP with a password</h3>
+        <p>Create and extract ZIP files, optionally locked with AES-256 encryption. They open in 7-Zip, WinRAR and most zip apps.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9l6.5 3.8"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3>Handy tools</h3>
+        <p>Recent files, storage overview, largest files, a duplicate finder, batch rename, app details and MD5/SHA-256 checksums.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <h3>Select in a snap</h3>
+        <p>Press and hold to start selecting, or sweep your finger across files. Then share, cut, copy, rename, zip or delete in one tap.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+        <h3>Every drive</h3>
+        <p>Internal storage, SD cards and USB drives, with drag and drop between folders and a folder tree that keeps your place.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="ic bg-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div>
+        <h3>Your way</h3>
+        <p>Four views (large icons, small icons, details and preview tiles), light and dark themes, and 40 languages.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap">
+    <div class="showcase reveal">
+      <div class="media"><div class="phone"><img src="images/search.jpg" alt="Search results with a live preview of the selected picture" loading="lazy"></div></div>
+      <div>
+        <div class="kicker">Search</div>
+        <h3>Find it in seconds, see it instantly</h3>
+        <p>Type a few letters and results appear as you type, with the folder each one lives in. Tap a result to preview it, then swipe to flip through the rest.</p>
+        <ul class="ticks">
+          <li>Wildcards like <code>*.pdf</code>, and <code>!</code> to leave things out</li>
+          <li>Filter by type, size, created or modified date</li>
+          <li>Search one folder, a whole drive or every drive at once</li>
+          <li>Cut, copy, delete or jump to the folder straight from the results</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="showcase flip reveal">
+      <div class="media"><div class="phone"><img src="images/advanced.jpg" alt="Advanced Search with text-inside-files filter" loading="lazy"></div></div>
+      <div>
+        <div class="kicker">Advanced Search</div>
+        <h3>Look inside your documents</h3>
+        <p>Remember a word but not the file name? Advanced Search reads inside documents, PDFs, spreadsheets and presentations, and can even find text in pictures.</p>
+        <ul class="ticks">
+          <li>Combine name, text, type, size and dates in one search</li>
+          <li>Pick exactly which drives to search</li>
+          <li>Skips system files and media to stay fast</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="showcase reveal">
+      <div class="media"><div class="phone"><img src="images/zip.jpg" alt="Creating a password-protected ZIP file" loading="lazy"></div></div>
+      <div>
+        <div class="kicker">ZIP and security</div>
+        <h3>Pack files up and lock them down</h3>
+        <p>Select a few files, tap Zip, and choose whether to protect the archive with a password. EasyExplorer uses strong AES-256 encryption that other zip apps understand.</p>
+        <ul class="ticks">
+          <li>Extract ZIPs with one tap, password-protected ones too</li>
+          <li>Password entered twice, so typos never lock you out</li>
+          <li>Nothing is uploaded: everything happens on your phone</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Big screens</div>
+      <h2>Turn sideways, see everything</h2>
+      <p>In landscape and on tablets, all three panes sit side by side, just like on a computer.</p>
+    </div>
+    <div class="wide-frame reveal"><img src="images/landscape.jpg" alt="EasyExplorer in landscape showing the folder tree, file tiles and a preview" loading="lazy"></div>
+    <div class="pane-labels reveal"><span>Folder tree</span><span>Your files</span><span>Live preview</span></div>
+  </div>
+</section>
+
+<section class="block" id="screenshots" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Screenshots</div>
+      <h2>Take a closer look</h2>
+      <p>Tap any screen to enlarge it.</p>
+    </div>
+  </div>
+  <div class="gallery-wrap">
+    <div class="gallery reveal">
+      <figure><div class="phone"><img src="images/explorer.jpg" alt="File list with picture preview" loading="lazy"></div><figcaption>Browse with live preview</figcaption></figure>
+      <figure><div class="phone"><img src="images/tiles.jpg" alt="Preview tiles view" loading="lazy"></div><figcaption>Preview tiles</figcaption></figure>
+      <figure><div class="phone"><img src="images/select.jpg" alt="Several files selected with the action bar" loading="lazy"></div><figcaption>Select and act in one tap</figcaption></figure>
+      <figure><div class="phone"><img src="images/search.jpg" alt="Search results" loading="lazy"></div><figcaption>Search as you type</figcaption></figure>
+      <figure><div class="phone"><img src="images/advanced.jpg" alt="Advanced Search" loading="lazy"></div><figcaption>Advanced Search</figcaption></figure>
+      <figure><div class="phone"><img src="images/zip.jpg" alt="Password-protected ZIP" loading="lazy"></div><figcaption>Password-protected ZIP</figcaption></figure>
+      <figure><div class="phone"><img src="images/languages.webp" alt="Language chooser" loading="lazy"></div><figcaption>40 languages</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="privacy" style="padding-top:0">
+  <div class="wrap">
+    <div class="privacy reveal">
+      <div>
+        <div class="kicker">Privacy first</div>
+        <h2>Your files stay yours</h2>
+        <p>EasyExplorer works entirely on your phone. There is no account to create, no analytics, and your files never leave your device unless you choose to share them.</p>
+        <p class="note">EasyExplorer is free. A few small, non-personalised banner ads help keep it that way.</p>
+        <p class="note"><a href="https://drb21904.github.io/easyexplorer-privacy/">Read the privacy policy</a></p>
+      </div>
+      <div class="priv-list">
+        <div class="priv-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><div><b>No account, no sign-in</b><span>Open the app and start using it.</span></div></div>
+        <div class="priv-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 22 12a17 17 0 0 1-3.2 4.2M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/></svg><div><b>No analytics or tracking</b><span>The app doesn't watch how you use it.</span></div></div>
+        <div class="priv-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg><div><b>Files stay on your device</b><span>Search, previews and ZIPs all run locally.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">Languages</div>
+      <h2>Speaks your language</h2>
+      <p>Choose from 40 languages when you first open the app, and switch anytime from Help.</p>
+    </div>
+    <div class="langs reveal" lang="mul">
+      <span>English</span><span>हिन्दी</span><span>বাংলা</span><span>español</span><span>français</span><span>Deutsch</span>
+      <span>português</span><span>русский</span><span>العربية</span><span>简体中文</span><span>繁體中文</span><span>日本語</span>
+      <span>한국어</span><span>Bahasa Indonesia</span><span>Türkçe</span><span>Tiếng Việt</span><span>ไทย</span><span>italiano</span>
+      <span>polski</span><span>українська</span><span>فارسی</span><span>اردو</span><span>தமிழ்</span><span>తెలుగు</span>
+      <span>मराठी</span><span>ગુજરાતી</span><span>ಕನ್ನಡ</span><span>മലയാളം</span><span>ਪੰਜਾਬੀ</span><span>ଓଡ଼ିଆ</span>
+      <span>Kiswahili</span><span>Filipino</span><span>…and more</span>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="kicker">FAQ</div>
+      <h2>Questions, answered</h2>
+    </div>
+    <div class="faq reveal">
+      <details>
+        <summary>Is EasyExplorer free?</summary>
+        <p>Yes. Every feature is free to use. A few small, non-personalised banner ads keep it that way, and there are never any video or pop-up ads.</p>
+      </details>
+      <details>
+        <summary>Why does it ask for "All files access"?</summary>
+        <p>A file manager needs to see your folders to browse, search, move and delete files on your behalf. Android grants this through the "All files access" setting. EasyExplorer only uses it to show and manage your files on your phone.</p>
+      </details>
+      <details>
+        <summary>Does it upload or collect my files?</summary>
+        <p>No. Browsing, searching, previews and ZIPs all happen on your device. There are no accounts and no analytics. Files leave your phone only when you choose to share them.</p>
+      </details>
+      <details>
+        <summary>I deleted something by mistake. Can I get it back?</summary>
+        <p>Usually, yes. Deleted files go to the Recycle bin (under Tools) and stay there for 30 days, so you can restore them. Undo also reverses your most recent changes.</p>
+      </details>
+      <details>
+        <summary>Does it work with SD cards and USB drives?</summary>
+        <p>Yes. Internal storage, SD cards and USB drives all appear in the folder tree, and you can search one drive, several, or all of them.</p>
+      </details>
+      <details>
+        <summary>Will a password-protected ZIP open on my computer?</summary>
+        <p>Yes. EasyExplorer uses standard AES-256 ZIP encryption, which opens in 7-Zip, WinRAR and most other zip apps. Keep the password safe, because it can't be recovered.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap">
+    <div class="final reveal">
+      <img src="images/icon.png" alt="EasyExplorer app icon">
+      <h2>Make your files <span class="grad">easy</span></h2>
+      <p>Download EasyExplorer from Google Play. It's free, it's fast, and it respects your privacy.</p>
+      <div class="cta-row">
+        <a class="play-btn" href="https://play.google.com/store/apps/details?id=com.deepak.easyexplorer" aria-label="Get it on Google Play">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#00d2ff" d="M3.6 1.8 13.4 12 3.6 22.2c-.4-.2-.6-.7-.6-1.2V3c0-.5.2-1 .6-1.2z"/>
+            <path fill="#00f076" d="M16.8 8.6 13.4 12 3.6 1.8c.3-.2.8-.2 1.2 0z"/>
+            <path fill="#ff3a44" d="M16.8 15.4 4.8 22.2c-.4.2-.9.2-1.2 0L13.4 12z"/>
+            <path fill="#ffd500" d="m20.5 10.6-3.7-2L13.4 12l3.4 3.4 3.7-2.1c1-.6 1-2.1 0-2.7z"/>
+          </svg>
+          <span><small>Get it on</small><strong>Google Play</strong></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 <a href="http://drb21904.github.io/privacy-first">Privacy First Technologies</a> · Free, contains ads</div>
+    <div class="links">
+      <a href="https://drb21904.github.io/easyexplorer-privacy/">Privacy policy</a>
+      <a href="mailto:deepakranjanbiswas@gmail.com">Contact</a>
+      <a href="https://play.google.com/store/apps/details?id=com.deepak.easyexplorer">Google Play</a>
+    </div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot"><img alt=""></div>
+
+<script>
+  // Fade sections in as they scroll into view.
+  (function () {
+    var items = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function (el) { el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    items.forEach(function (el) { io.observe(el); });
+  })();
+
+  // Tap a screenshot in the gallery to see it larger.
+  (function () {
+    var box = document.getElementById('lightbox');
+    var big = box.querySelector('img');
+    document.querySelectorAll('.gallery .phone img').forEach(function (img) {
+      img.addEventListener('click', function () {
+        big.src = img.src; big.alt = img.alt; box.classList.add('open');
+      });
+    });
+    box.addEventListener('click', function () { box.classList.remove('open'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') box.classList.remove('open'); });
+  })();
+</script>
+</body>
+</html>
